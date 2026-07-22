@@ -16,13 +16,13 @@ if isNoui then
     G.IsHeadless = function() return true end
 else
     -- Load the real UI library from your link
-    local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/Reversed1337/Testing-123/refs/heads/main/zetahub_uilib"))()
+    local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/doraimon0/xexellent/refs/heads/main/zetahub_uilib"))()
     G.Library = Library
 
     -- Create the main window to pass to the script
     G.Window = Library:CreateWindow({
         Title = "Exotic Hub Pro",
-        Footer = "exotichub.app/join | Hello World!",
+        Footer = "exotichub.app/join | poootaaa!",
         Position = UDim2.fromOffset(6, 6),
         Size = UDim2.fromOffset(720, 600),
         AutoShow = true,
@@ -1381,8 +1381,8 @@ r.Http = {
 g.SaveSyncStatusText = ""
 g.TotalControlStatusText = ""
 Z.SaveSync = {
-	PushUrlSaveSync = "https://exotichub.app/push-data";
-	PullUrlSaveSync = "https://exotichub.app/pull-sync";
+	PushUrlSaveSync = "https://personal-test-nu.vercel.app/api/push-data";
+	PullUrlSaveSync = "https://personal-test-nu.vercel.app/api/pull-sync";
 	GameKeySaveSync = "gag2",
 	StartedSaveSync = false,
 	PushBusySaveSync = false,
