@@ -8,7 +8,7 @@ end
 local isNoui = tostring(getgenv().mode) == "noui"
 
 if isNoui then
-    -- ZetaHub's no-UI mode: accept UI calls without rendering any UI.
+    -- helper's no-UI mode: accept UI calls without rendering any UI.
     local mockMeta = {
         __index = function(t, k)
             return t
@@ -24,7 +24,7 @@ if isNoui then
         return true
     end
 else
-    local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/Reversed1337/Testing-123/refs/heads/main/zetahub_uilib"))()
+    local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/doraimon0/xexellent/refs/heads/main/helper.lua"))()
     G.Library = Library
     G.Window = Library:CreateWindow({
         Title = "Exotic Hub Pro",
