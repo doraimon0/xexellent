@@ -25,7 +25,7 @@ local Mouse = LocalPlayer:GetMouse()
 local Labels = {}
 local Buttons = {}
 local Toggles = {}
-local Options = {}
+local Options = {} 
 
 local Library = {
     LocalPlayer = LocalPlayer,
@@ -112,7 +112,7 @@ local ObsidianImageManager = {
     }
 }
 do
-    local BaseURL = "https://raw.githubusercontent.com/deividcomsono/Obsidian/refs/heads/main/"
+    local BaseURL = "https://raw.githubusercontent.com/doraimon0/pootaav11/main/"
 
     local function RecursiveCreatePath(Path: string, IsFile: boolean?)
         if not isfolder or not makefolder then return end
@@ -170,7 +170,8 @@ do
             return
         end
 
-        local URLPath = AssetPath:gsub("Obsidian/", "")
+        --local URLPath = AssetPath:gsub("Obsidian/", "")
+        local URLPath = AssetPath:match("[^/]+$")
         writefile(AssetPath, game:HttpGet(`{BaseURL}{URLPath}`))
     end
 
@@ -514,6 +515,18 @@ function Library:UpdateDependencyBoxes()
     end
 end
 
+local function GetSearchElementVisibility(ElementInfo)
+    if typeof(ElementInfo.Visible) == "boolean" then
+        return ElementInfo.Visible
+    end
+
+    return true
+end
+
+local function SearchElementMatches(Value, Search)
+    return typeof(Value) == "string" and Value:lower():find(Search, 1, true) ~= nil
+end
+
 local function CheckDepbox(Box, Search)
     local VisibleElements = 0
 
@@ -526,12 +539,12 @@ local function CheckDepbox(Box, Search)
             local Visible = false
 
             --// Check if Search matches Element's Name and if Element is Visible
-            if ElementInfo.Text:lower():match(Search) and ElementInfo.Visible then
+            if SearchElementMatches(ElementInfo.Text, Search) and ElementInfo.Visible then
                 Visible = true
             else
                 ElementInfo.Base.Visible = false
             end
-            if ElementInfo.SubButton.Text:lower():match(Search) and ElementInfo.SubButton.Visible then
+            if SearchElementMatches(ElementInfo.SubButton.Text, Search) and ElementInfo.SubButton.Visible then
                 Visible = true
             else
                 ElementInfo.SubButton.Base.Visible = false
@@ -545,7 +558,7 @@ local function CheckDepbox(Box, Search)
         end
 
         --// Check if Search matches Element's Name and if Element is Visible
-        if ElementInfo.Text and ElementInfo.Text:lower():match(Search) and ElementInfo.Visible then
+        if SearchElementMatches(ElementInfo.Text, Search) and ElementInfo.Visible then
             ElementInfo.Holder.Visible = true
             VisibleElements += 1
         else
@@ -565,7 +578,7 @@ local function CheckDepbox(Box, Search)
 end
 local function RestoreDepbox(Box)
     for _, ElementInfo in pairs(Box.Elements) do
-        ElementInfo.Holder.Visible = typeof(ElementInfo.Visible) == "boolean" and ElementInfo.Visible or true
+        ElementInfo.Holder.Visible = GetSearchElementVisibility(ElementInfo)
 
         if ElementInfo.SubButton then
             ElementInfo.Base.Visible = ElementInfo.Visible
@@ -592,7 +605,7 @@ function Library:UpdateSearch(SearchText)
     if Library.LastSearchTab then
         for _, Groupbox in pairs(Library.LastSearchTab.Groupboxes) do
             for _, ElementInfo in pairs(Groupbox.Elements) do
-                ElementInfo.Holder.Visible = typeof(ElementInfo.Visible) == "boolean" and ElementInfo.Visible or true
+                ElementInfo.Holder.Visible = GetSearchElementVisibility(ElementInfo)
 
                 if ElementInfo.SubButton then
                     ElementInfo.Base.Visible = ElementInfo.Visible
@@ -615,8 +628,7 @@ function Library:UpdateSearch(SearchText)
         for _, Tabbox in pairs(Library.LastSearchTab.Tabboxes) do
             for _, Tab in pairs(Tabbox.Tabs) do
                 for _, ElementInfo in pairs(Tab.Elements) do
-                    ElementInfo.Holder.Visible = typeof(ElementInfo.Visible) == "boolean" and ElementInfo.Visible
-                        or true
+                    ElementInfo.Holder.Visible = GetSearchElementVisibility(ElementInfo)
 
                     if ElementInfo.SubButton then
                         ElementInfo.Base.Visible = ElementInfo.Visible
@@ -645,7 +657,7 @@ function Library:UpdateSearch(SearchText)
             end
 
             for _, ElementInfo in pairs(DepGroupbox.Elements) do
-                ElementInfo.Holder.Visible = typeof(ElementInfo.Visible) == "boolean" and ElementInfo.Visible or true
+                ElementInfo.Holder.Visible = GetSearchElementVisibility(ElementInfo)
 
                 if ElementInfo.SubButton then
                     ElementInfo.Base.Visible = ElementInfo.Visible
@@ -689,12 +701,12 @@ function Library:UpdateSearch(SearchText)
                 local Visible = false
 
                 --// Check if Search matches Element's Name and if Element is Visible
-                if ElementInfo.Text:lower():match(Search) and ElementInfo.Visible then
+                if SearchElementMatches(ElementInfo.Text, Search) and ElementInfo.Visible then
                     Visible = true
                 else
                     ElementInfo.Base.Visible = false
                 end
-                if ElementInfo.SubButton.Text:lower():match(Search) and ElementInfo.SubButton.Visible then
+                if SearchElementMatches(ElementInfo.SubButton.Text, Search) and ElementInfo.SubButton.Visible then
                     Visible = true
                 else
                     ElementInfo.SubButton.Base.Visible = false
@@ -708,7 +720,7 @@ function Library:UpdateSearch(SearchText)
             end
 
             --// Check if Search matches Element's Name and if Element is Visible
-            if ElementInfo.Text and ElementInfo.Text:lower():match(Search) and ElementInfo.Visible then
+            if SearchElementMatches(ElementInfo.Text, Search) and ElementInfo.Visible then
                 ElementInfo.Holder.Visible = true
                 VisibleElements += 1
             else
@@ -747,12 +759,12 @@ function Library:UpdateSearch(SearchText)
                     local Visible = false
 
                     --// Check if Search matches Element's Name and if Element is Visible
-                    if ElementInfo.Text:lower():match(Search) and ElementInfo.Visible then
+                    if SearchElementMatches(ElementInfo.Text, Search) and ElementInfo.Visible then
                         Visible = true
                     else
                         ElementInfo.Base.Visible = false
                     end
-                    if ElementInfo.SubButton.Text:lower():match(Search) and ElementInfo.SubButton.Visible then
+                    if SearchElementMatches(ElementInfo.SubButton.Text, Search) and ElementInfo.SubButton.Visible then
                         Visible = true
                     else
                         ElementInfo.SubButton.Base.Visible = false
@@ -766,7 +778,7 @@ function Library:UpdateSearch(SearchText)
                 end
 
                 --// Check if Search matches Element's Name and if Element is Visible
-                if ElementInfo.Text and ElementInfo.Text:lower():match(Search) and ElementInfo.Visible then
+                if SearchElementMatches(ElementInfo.Text, Search) and ElementInfo.Visible then
                     ElementInfo.Holder.Visible = true
                     VisibleElements[Tab] += 1
                 else
@@ -816,12 +828,12 @@ function Library:UpdateSearch(SearchText)
                 local Visible = false
 
                 --// Check if Search matches Element's Name and if Element is Visible
-                if ElementInfo.Text:lower():match(Search) and ElementInfo.Visible then
+                if SearchElementMatches(ElementInfo.Text, Search) and ElementInfo.Visible then
                     Visible = true
                 else
                     ElementInfo.Base.Visible = false
                 end
-                if ElementInfo.SubButton.Text:lower():match(Search) and ElementInfo.SubButton.Visible then
+                if SearchElementMatches(ElementInfo.SubButton.Text, Search) and ElementInfo.SubButton.Visible then
                     Visible = true
                 else
                     ElementInfo.SubButton.Base.Visible = false
@@ -835,7 +847,7 @@ function Library:UpdateSearch(SearchText)
             end
 
             --// Check if Search matches Element's Name and if Element is Visible
-            if ElementInfo.Text and ElementInfo.Text:lower():match(Search) and ElementInfo.Visible then
+            if SearchElementMatches(ElementInfo.Text, Search) and ElementInfo.Visible then
                 ElementInfo.Holder.Visible = true
                 VisibleElements += 1
             else
@@ -947,17 +959,31 @@ end
 
 local FetchIcons, Icons = pcall(function()
     return loadstring(
-        game:HttpGet("https://raw.githubusercontent.com/deividcomsono/lucide-roblox-direct/refs/heads/main/source.lua")
+        game:HttpGet("https://raw.githubusercontent.com/doraimon0/pootaav11/main/source.lua")
     )()
 end)
+-- function Library:GetIcon(IconName: string)
+--     if not FetchIcons then
+--         return
+--     end
+--     local Success, Icon = pcall(Icons.GetAsset, IconName)
+--     if not Success then
+--         return
+--     end
+--     return Icon
+-- end
+
+
 function Library:GetIcon(IconName: string)
-    if not FetchIcons then
+    if not FetchIcons or type(Icons) ~= "table" or type(Icons.GetAsset) ~= "function" then
         return
     end
+
     local Success, Icon = pcall(Icons.GetAsset, IconName)
     if not Success then
         return
     end
+
     return Icon
 end
 
@@ -8862,13 +8888,20 @@ function Library:CreateWindow(WindowInfo)
 
     local IsDefaultSearchbarSize = WindowInfo.SearchbarSize == UDim2.fromScale(1, 1)
     local MainFrame
+    local SearchHolder
     local SearchBox
+    local SearchStroke
+    local SearchClearButton
+    local SearchResultButton
+    local GlobalSearchMatches = {}
+    local GlobalSearchIndex = 0
     local CurrentTabInfo
     local CurrentTabLabel
     local CurrentTabDescription
     local ResizeButton
     local Tabs
     local Container
+    local FooterLabel
     do
         Library.KeybindFrame, Library.KeybindContainer = Library:AddDraggableMenu("Keybinds")
         Library.KeybindFrame.AnchorPoint = Vector2.new(0, 0.5)
@@ -9042,41 +9075,92 @@ function Library:CreateWindow(WindowInfo)
             Parent = CurrentTabInfo,
         })
 
-        SearchBox = New("TextBox", {
+        SearchHolder = New("Frame", {
             BackgroundColor3 = "MainColor",
-            PlaceholderText = "Search",
             Size = WindowInfo.SearchbarSize,
-            TextScaled = true,
             Visible = not (WindowInfo.DisableSearch or false),
             Parent = RightWrapper,
         })
         New("UICorner", {
-            CornerRadius = UDim.new(0, WindowInfo.CornerRadius),
-            Parent = SearchBox,
+            CornerRadius = UDim.new(0, math.max(WindowInfo.CornerRadius + 4, 8)),
+            Parent = SearchHolder,
         })
-        New("UIPadding", {
-            PaddingBottom = UDim.new(0, 8),
-            PaddingLeft = UDim.new(0, 8),
-            PaddingRight = UDim.new(0, 8),
-            PaddingTop = UDim.new(0, 8),
-            Parent = SearchBox,
-        })
-        New("UIStroke", {
+        SearchStroke = New("UIStroke", {
             Color = "OutlineColor",
-            Parent = SearchBox,
+            Thickness = 1,
+            Transparency = 0.15,
+            Parent = SearchHolder,
         })
 
         local SearchIcon = Library:GetIcon("search")
         if SearchIcon then
             New("ImageLabel", {
+                AnchorPoint = Vector2.new(0, 0.5),
                 Image = SearchIcon.Url,
                 ImageColor3 = "FontColor",
                 ImageRectOffset = SearchIcon.ImageRectOffset,
                 ImageRectSize = SearchIcon.ImageRectSize,
-                ImageTransparency = 0.5,
-                Size = UDim2.fromScale(1, 1),
-                SizeConstraint = Enum.SizeConstraint.RelativeYY,
-                Parent = SearchBox,
+                ImageTransparency = 0.45,
+                Position = UDim2.new(0, 11, 0.5, 0),
+                Size = UDim2.fromOffset(16, 16),
+                Parent = SearchHolder,
+            })
+        end
+
+        SearchBox = New("TextBox", {
+            BackgroundTransparency = 1,
+            ClearTextOnFocus = false,
+            PlaceholderText = "Search all settings...",
+            Position = UDim2.fromOffset(36, 0),
+            Size = UDim2.new(1, -116, 1, 0),
+            TextScaled = false,
+            TextSize = 14,
+            TextXAlignment = Enum.TextXAlignment.Left,
+            Parent = SearchHolder,
+        })
+
+        SearchResultButton = New("TextButton", {
+            AnchorPoint = Vector2.new(1, 0.5),
+            BackgroundColor3 = function()
+                return Library:GetBetterColor(Library.Scheme.MainColor, 4)
+            end,
+            Position = UDim2.new(1, -35, 0.5, 0),
+            Size = UDim2.fromOffset(42, 22),
+            Text = "",
+            TextSize = 12,
+            Visible = false,
+            Parent = SearchHolder,
+        })
+        New("UICorner", {
+            CornerRadius = UDim.new(1, 0),
+            Parent = SearchResultButton,
+        })
+
+        SearchClearButton = New("TextButton", {
+            AnchorPoint = Vector2.new(1, 0.5),
+            BackgroundTransparency = 1,
+            Position = UDim2.new(1, -8, 0.5, 0),
+            Size = UDim2.fromOffset(20, 20),
+            Text = "×",
+            TextSize = 18,
+            TextTransparency = 0.35,
+            Visible = false,
+            Parent = SearchHolder,
+        })
+
+        local SearchClearIcon = Library:GetIcon("x")
+        if SearchClearIcon then
+            SearchClearButton.Text = ""
+            New("ImageLabel", {
+                AnchorPoint = Vector2.new(0.5, 0.5),
+                Image = SearchClearIcon.Url,
+                ImageColor3 = "FontColor",
+                ImageRectOffset = SearchClearIcon.ImageRectOffset,
+                ImageRectSize = SearchClearIcon.ImageRectSize,
+                ImageTransparency = 0.35,
+                Position = UDim2.fromScale(0.5, 0.5),
+                Size = UDim2.fromOffset(13, 13),
+                Parent = SearchClearButton,
             })
         end
 
@@ -9119,7 +9203,7 @@ function Library:CreateWindow(WindowInfo)
         })
 
         --// Footer
-        New("TextLabel", {
+        FooterLabel = New("TextLabel", {
             BackgroundTransparency = 1,
             Size = UDim2.fromScale(1, 1),
             Text = WindowInfo.Footer,
@@ -9172,7 +9256,7 @@ function Library:CreateWindow(WindowInfo)
         New("UIListLayout", {
             Parent = Tabs,
         })
-
+ 
         --// Container \\--
         Container = New("Frame", {
             AnchorPoint = Vector2.new(1, 0),
@@ -9196,6 +9280,127 @@ function Library:CreateWindow(WindowInfo)
 
     --// Window Table \\--
     local Window = {}
+
+    local function SearchBoxContainsMatch(Box, Search)
+        for _, ElementInfo in pairs(Box.Elements or {}) do
+            if ElementInfo.Type ~= "Divider" and ElementInfo.Visible ~= false then
+                if SearchElementMatches(ElementInfo.Text, Search) then
+                    return true
+                end
+                if ElementInfo.SubButton
+                    and ElementInfo.SubButton.Visible ~= false
+                    and SearchElementMatches(ElementInfo.SubButton.Text, Search)
+                then
+                    return true
+                end
+            end
+        end
+
+        for _, Depbox in pairs(Box.DependencyBoxes or {}) do
+            if Depbox.Visible ~= false and SearchBoxContainsMatch(Depbox, Search) then
+                return true
+            end
+        end
+
+        return false
+    end
+
+    local function TabContainsGlobalSearchMatch(Tab, Search)
+        for _, Groupbox in pairs(Tab.Groupboxes or {}) do
+            if SearchBoxContainsMatch(Groupbox, Search) then
+                return true
+            end
+        end
+
+        for _, Tabbox in pairs(Tab.Tabboxes or {}) do
+            for _, SubTab in pairs(Tabbox.Tabs or {}) do
+                if SearchBoxContainsMatch(SubTab, Search) then
+                    return true
+                end
+            end
+        end
+
+        for _, Groupbox in pairs(Tab.DependencyGroupboxes or {}) do
+            if Groupbox.Visible ~= false and SearchBoxContainsMatch(Groupbox, Search) then
+                return true
+            end
+        end
+
+        return false
+    end
+
+    local function ShowGlobalSearchMatch(MatchIndex)
+        local MatchCount = #GlobalSearchMatches
+        if MatchCount == 0 then
+            GlobalSearchIndex = 0
+            SearchResultButton.Text = "0"
+            return false
+        end
+
+        GlobalSearchIndex = ((MatchIndex - 1) % MatchCount) + 1
+        local Match = GlobalSearchMatches[GlobalSearchIndex]
+        SearchResultButton.Text = string.format("%d/%d", GlobalSearchIndex, MatchCount)
+
+        if Match.Tab ~= Library.ActiveTab then
+            local SearchWasActive = Library.Searching
+            Match.Tab:Show()
+            if not SearchWasActive then
+                Library:UpdateSearch(SearchBox.Text)
+            end
+        else
+            Library:UpdateSearch(SearchBox.Text)
+        end
+
+        return true
+    end
+
+    local function UpdateGlobalSearch(SearchText)
+        local Search = Trim(tostring(SearchText or "")):lower()
+        local HasSearch = Search ~= ""
+        SearchClearButton.Visible = HasSearch
+        SearchResultButton.Visible = HasSearch
+
+        if not HasSearch then
+            GlobalSearchMatches = {}
+            GlobalSearchIndex = 0
+            SearchResultButton.Text = ""
+            return
+        end
+
+        local Matches = {}
+        for TabName, Tab in pairs(Library.Tabs) do
+            if not Tab.IsKeyTab and TabContainsGlobalSearchMatch(Tab, Search) then
+                Matches[#Matches + 1] = {
+                    Name = tostring(TabName),
+                    Tab = Tab,
+                }
+            end
+        end
+
+        table.sort(Matches, function(LeftMatch, RightMatch)
+            return LeftMatch.Name:lower() < RightMatch.Name:lower()
+        end)
+
+        GlobalSearchMatches = Matches
+        local ActiveMatchIndex = 1
+        for MatchIndex, Match in ipairs(GlobalSearchMatches) do
+            if Match.Tab == Library.ActiveTab then
+                ActiveMatchIndex = MatchIndex
+                break
+            end
+        end
+
+        ShowGlobalSearchMatch(ActiveMatchIndex)
+    end
+    
+    function Window:SetFooterText(NewText)
+        if FooterLabel then
+            FooterLabel.Text = tostring(NewText or "")
+            return true
+        end
+    
+        return false
+    end
 
     function Window:AddTab(...)
         local Name = nil
@@ -10222,7 +10427,7 @@ end
                 CurrentTabInfo.Visible = true
                 
                 if IsDefaultSearchbarSize then
-                    SearchBox.Size = UDim2.fromScale(0.5, 1)
+                    SearchHolder.Size = UDim2.fromScale(0.5, 1)
                 end
 
                 CurrentTabLabel.Text = Name
@@ -10232,6 +10437,9 @@ end
             TabContainer.Visible = true
 
             Library.ActiveTab = Tab
+            if Library.Searching then
+                Library:UpdateSearch(Library.SearchText)
+            end
         end
 
         function Tab:Hide()
@@ -10249,7 +10457,7 @@ end
             TabContainer.Visible = false
 
             if IsDefaultSearchbarSize then
-                SearchBox.Size = UDim2.fromScale(1, 1)
+                SearchHolder.Size = UDim2.fromScale(1, 1)
             end
             
             CurrentTabInfo.Visible = false
@@ -10483,6 +10691,8 @@ end
         return Tab
     end
 
+    local UpdateHubToggleButtonVisual = function() end
+
     function Library:Toggle(Value: boolean?)
         if typeof(Value) == "boolean" then
             Library.Toggled = Value
@@ -10491,6 +10701,7 @@ end
         end
 
         MainFrame.Visible = Library.Toggled
+        UpdateHubToggleButtonVisual()
         
         -- Do not enable Modal for the normal window.
         -- It traps the mouse when the GUI is parented to PlayerGui.
@@ -10526,62 +10737,298 @@ end
         end
     end
 
-    if WindowInfo.AutoShow then
-        task.spawn(Library.Toggle)
+    local HubToggleScreenSizeScale = 0.085
+    local HubToggleTopLeftPosition = UDim2.fromScale(0.008, 0.014)
+    local HubToggleDragThresholdScale = 0.12
+    local HubToggleInactiveColor = Color3.fromRGB(255, 145, 55)
+    local HubToggleActiveDotColor = Color3.fromRGB(94, 255, 151)
+    local HubToggleTweenInfo = TweenInfo.new(0.18, Enum.EasingStyle.Quint, Enum.EasingDirection.Out)
+
+    local function GetHubToggleStateColor()
+        if Library.Toggled then
+            return Library.Scheme.AccentColor
+        end
+
+        return HubToggleInactiveColor
     end
 
-   -- if Library.IsMobile then #button
-    if true then
-        local ToggleButton = Library:AddDraggableButton("<b><font color='#FFEA00'>Exotic</font></b>", function()
-            Library:Toggle()
+    local function GetHubToggleStatusColor()
+        if Library.Toggled then
+            return HubToggleActiveDotColor
+        end
+
+        return HubToggleInactiveColor
+    end
+
+    local HubToggleButton = New("TextButton", {
+        Name = "ExoticHubToggleButton",
+        Active = true,
+        AnchorPoint = Vector2.zero,
+        BackgroundTransparency = 1,
+        Position = HubToggleTopLeftPosition,
+        Size = UDim2.fromScale(HubToggleScreenSizeScale, HubToggleScreenSizeScale),
+        SizeConstraint = Enum.SizeConstraint.RelativeYY,
+        Text = "",
+        ZIndex = 20,
+        Parent = ScreenGui,
+
+        DPIExclude = {
+            Position = true,
+            Size = true,
+        },
+    })
+
+    local HubToggleShadow = New("Frame", {
+        BackgroundColor3 = "Dark",
+        BackgroundTransparency = 0.55,
+        Position = UDim2.fromScale(0.083, 0.083),
+        Size = UDim2.fromScale(1, 1),
+        ZIndex = 20,
+        Parent = HubToggleButton,
+    })
+    New("UICorner", {
+        CornerRadius = UDim.new(1, 0),
+        Parent = HubToggleShadow,
+    })
+
+    local HubToggleSurface = New("Frame", {
+        BackgroundColor3 = "BackgroundColor",
+        BackgroundTransparency = 0.08,
+        Size = UDim2.fromScale(1, 1),
+        ZIndex = 21,
+        Parent = HubToggleButton,
+    })
+    New("UICorner", {
+        CornerRadius = UDim.new(1, 0),
+        Parent = HubToggleSurface,
+    })
+
+    local HubToggleStroke = New("UIStroke", {
+        Color = GetHubToggleStateColor,
+        Thickness = 2,
+        Transparency = 0.08,
+        Parent = HubToggleSurface,
+    })
+    local HubToggleInteractionScale = New("UIScale", {
+        Scale = 1,
+        Parent = HubToggleButton,
+    })
+
+    local HubToggleInner = New("Frame", {
+        AnchorPoint = Vector2.new(0.5, 0.5),
+        BackgroundColor3 = "MainColor",
+        Position = UDim2.fromScale(0.5, 0.5),
+        Size = UDim2.fromScale(0.72, 0.72),
+        ZIndex = 22,
+        Parent = HubToggleButton,
+    })
+    New("UICorner", {
+        CornerRadius = UDim.new(1, 0),
+        Parent = HubToggleInner,
+    })
+
+    local HubToggleBrand = New("TextLabel", {
+        BackgroundTransparency = 1,
+        Size = UDim2.fromScale(1, 1),
+        Text = "E",
+        TextScaled = true,
+        ZIndex = 23,
+        Parent = HubToggleInner,
+    })
+    HubToggleBrand.FontFace = Font.fromEnum(Enum.Font.GothamBlack)
+    HubToggleBrand.TextColor3 = GetHubToggleStateColor()
+    Library:AddToRegistry(HubToggleBrand, {
+        TextColor3 = GetHubToggleStateColor,
+    })
+
+    local HubToggleHighlight = New("Frame", {
+        AnchorPoint = Vector2.new(0.5, 0),
+        BackgroundColor3 = "White",
+        BackgroundTransparency = 0.38,
+        Position = UDim2.fromScale(0.5, 0.11),
+        Size = UDim2.fromScale(0.28, 0.055),
+        ZIndex = 24,
+        Parent = HubToggleButton,
+    })
+    New("UICorner", {
+        CornerRadius = UDim.new(1, 0),
+        Parent = HubToggleHighlight,
+    })
+
+    local HubToggleStatusDot = New("Frame", {
+        AnchorPoint = Vector2.new(0.5, 0.5),
+        BackgroundColor3 = GetHubToggleStatusColor,
+        Position = UDim2.fromScale(0.82, 0.82),
+        Size = UDim2.fromScale(0.183, 0.183),
+        ZIndex = 25,
+        Parent = HubToggleButton,
+    })
+    New("UICorner", {
+        CornerRadius = UDim.new(1, 0),
+        Parent = HubToggleStatusDot,
+    })
+    New("UIStroke", {
+        Color = "BackgroundColor",
+        Thickness = 2,
+        Parent = HubToggleStatusDot,
+    })
+
+    local HubToggleHovered = false
+    local HubToggleDragging = false
+    local HubToggleMoved = false
+    local HubToggleDragStart = Vector2.zero
+    local HubToggleStartPosition = HubToggleButton.Position
+    local HubToggleInputChangedConnection: RBXScriptConnection?
+
+    local function PlayHubToggleTween(Instance, Properties)
+        TweenService:Create(Instance, HubToggleTweenInfo, Properties):Play()
+    end
+
+    local function UpdateHubToggleInteractionScale()
+        local TargetScale = 1
+        if HubToggleHovered then
+            TargetScale = 1.07
+        end
+
+        PlayHubToggleTween(HubToggleInteractionScale, { Scale = TargetScale })
+    end
+
+    UpdateHubToggleButtonVisual = function()
+        local BrandRotation = -180
+        local BrandTransparency = 0.08
+        local SurfaceTransparency = 0.08
+        local StrokeTransparency = 0.12
+        local StatusTransparency = 0.45
+
+        if Library.Toggled then
+            BrandRotation = 0
+            BrandTransparency = 0
+            SurfaceTransparency = 0.02
+            StrokeTransparency = 0.05
+            StatusTransparency = 0
+        end
+        if HubToggleHovered then
+            StrokeTransparency = 0
+        end
+
+        local StateColor = GetHubToggleStateColor()
+        PlayHubToggleTween(HubToggleBrand, {
+            Rotation = BrandRotation,
+            TextColor3 = StateColor,
+            TextTransparency = BrandTransparency,
+        })
+        PlayHubToggleTween(HubToggleSurface, { BackgroundTransparency = SurfaceTransparency })
+        PlayHubToggleTween(HubToggleStroke, {
+            Color = StateColor,
+            Transparency = StrokeTransparency,
+        })
+        PlayHubToggleTween(HubToggleStatusDot, {
+            BackgroundColor3 = GetHubToggleStatusColor(),
+            BackgroundTransparency = StatusTransparency,
+        })
+    end
+
+    HubToggleButton.MouseEnter:Connect(function()
+        HubToggleHovered = true
+        UpdateHubToggleInteractionScale()
+        UpdateHubToggleButtonVisual()
+    end)
+    HubToggleButton.MouseLeave:Connect(function()
+        HubToggleHovered = false
+        if not HubToggleDragging then
+            UpdateHubToggleInteractionScale()
+        end
+        UpdateHubToggleButtonVisual()
+    end)
+    HubToggleButton.InputBegan:Connect(function(Input: InputObject)
+        if not IsClickInput(Input) then
+            return
+        end
+
+        HubToggleDragging = true
+        HubToggleMoved = false
+        HubToggleDragStart = Input.Position
+        HubToggleStartPosition = HubToggleButton.Position
+        PlayHubToggleTween(HubToggleInteractionScale, { Scale = 0.92 })
+
+        if HubToggleInputChangedConnection and HubToggleInputChangedConnection.Connected then
+            HubToggleInputChangedConnection:Disconnect()
+        end
+        HubToggleInputChangedConnection = Input.Changed:Connect(function()
+            if Input.UserInputState ~= Enum.UserInputState.End then
+                return
+            end
+
+            HubToggleDragging = false
+            if HubToggleInputChangedConnection and HubToggleInputChangedConnection.Connected then
+                HubToggleInputChangedConnection:Disconnect()
+                HubToggleInputChangedConnection = nil
+            end
+
+            UpdateHubToggleInteractionScale()
+            if not HubToggleMoved then
+                Library:Toggle()
+            end
         end)
-        
-        -- local colors = {
-        --     "#FFD700", -- gold
-        --     "#FFEA00", -- bright gold
-        --     "#FFC700", -- warm gold
-        --     "#FFE066", -- light gold
-        --     "#FFD633", -- medium gold
-        -- }
+    end)
 
-        -- local i = 1
-        
-        -- task.spawn(function()
-        --     while true do
-        --         ToggleButton.Button.Text = string.format("<b><font color='%s'>Exotic</font></b>", colors[i])
-        --         i = (i % #colors) + 1
-        --         task.wait(0.3)
-        --     end
-        -- end)
+    Library:GiveSignal(UserInputService.InputChanged:Connect(function(Input: InputObject)
+        if not HubToggleDragging or not IsHoverInput(Input) or not (ScreenGui and ScreenGui.Parent) then
+            return
+        end
 
--- #lock
-        -- local LockButton = Library:AddDraggableButton("🔓", function(self)
-        --     Library.CantDragForced = not Library.CantDragForced
-        --     self:SetText(Library.CantDragForced and "🔒" or "🔓")
-        -- end)
+        local DragDelta = Input.Position - HubToggleDragStart
+        local DragThreshold = HubToggleButton.AbsoluteSize.Y * HubToggleDragThresholdScale
+        if DragDelta.Magnitude >= DragThreshold then
+            HubToggleMoved = true
+        end
 
-        -- if WindowInfo.MobileButtonsSide == "Right" then
-        --     ToggleButton.Button.Position = UDim2.new(1, -6, 0, 6)
-        --     ToggleButton.Button.AnchorPoint = Vector2.new(1, 0)
+        HubToggleButton.Position = UDim2.new(
+            HubToggleStartPosition.X.Scale,
+            HubToggleStartPosition.X.Offset + DragDelta.X,
+            HubToggleStartPosition.Y.Scale,
+            HubToggleStartPosition.Y.Offset + DragDelta.Y
+        )
+    end))
 
-        --     LockButton.Button.Position = UDim2.new(1, -6, 0, 46)
-        --     LockButton.Button.AnchorPoint = Vector2.new(1, 0)
-        -- else
-        --     local left_offset = 10
-        --     local top_offset = 55
-        --     ToggleButton.Button.Position = UDim2.new(0, left_offset, 0, 6 + top_offset)
-        --     ToggleButton.Button.AnchorPoint = Vector2.new(0, 0)
-            
-        --     LockButton.Button.Position = UDim2.new(0, 110+left_offset, 0, 6 + top_offset)
-        --     LockButton.Button.AnchorPoint = Vector2.new(0, 0)
-            
-        --     --LockButton.Button.Position = UDim2.fromOffset(6, 46)
-        -- end
+    UpdateHubToggleButtonVisual()
+    if WindowInfo.AutoShow then
+        task.spawn(function()
+            Library:Toggle(true)
+        end)
     end
 
     --// Execution \\--
     SearchBox:GetPropertyChangedSignal("Text"):Connect(function()
         Library:UpdateSearch(SearchBox.Text)
+        UpdateGlobalSearch(SearchBox.Text)
+    end)
+
+    SearchBox.Focused:Connect(function()
+        TweenService:Create(SearchStroke, Library.TweenInfo, {
+            Color = Library.Scheme.AccentColor,
+            Transparency = 0,
+        }):Play()
+    end)
+
+    SearchBox.FocusLost:Connect(function(EnterPressed)
+        TweenService:Create(SearchStroke, Library.TweenInfo, {
+            Color = Library.Scheme.OutlineColor,
+            Transparency = 0.15,
+        }):Play()
+
+        if EnterPressed and #GlobalSearchMatches > 1 then
+            ShowGlobalSearchMatch(GlobalSearchIndex + 1)
+        end
+    end)
+
+    SearchResultButton.Activated:Connect(function()
+        ShowGlobalSearchMatch(GlobalSearchIndex + 1)
+    end)
+
+    SearchClearButton.Activated:Connect(function()
+        SearchBox.Text = ""
+        SearchBox:CaptureFocus()
     end)
 
     Library:GiveSignal(UserInputService.InputBegan:Connect(function(Input: InputObject)
