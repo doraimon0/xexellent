@@ -9,38 +9,20 @@ local isNoui = tostring(getgenv().mode) == "noui"
 
 if isNoui then
     -- Helper's no-UI mode: accept UI calls without rendering any UI.
-    local mockMeta = {
-        __index = function(t, k)
-            return t
-        end,
-        __call = function(t, ...)
-            return t
-        end
-    }
+    local mockMeta = { __index = function(t, k) return t end, __call = function(t, ...) return t end }
     local mockUI = setmetatable({}, mockMeta)
     G.Library = mockUI
     G.Window = mockUI
-    G.IsHeadless = function()
-        return true
-    end
+    G.IsHeadless = function() return true end
 else
     local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/doraimon0/xexellent/refs/heads/main/helper.lua"))()
     G.Library = Library
     G.Window = Library:CreateWindow({
-        Title = "Exotic Hub Pro",
-        Footer = "exotichub.app/join | pootaaa",
-        Position = UDim2.fromOffset(6, 6),
-        Size = UDim2.fromOffset(720, 600),
-        AutoShow = true,
-        Center = true,
-        Resizable = true,
-        SearchbarSize = UDim2.fromScale(1, 1),
-        CornerRadius = 4,
-        NotifySide = "Right",
-        ShowCustomCursor = false,
-        Font = Enum.Font.Code,
-        ToggleKeybind = Enum.KeyCode.RightControl,
-        MobileButtonsSide = "Left"
+        Title = "Exotic Hub Pro", Footer = "exotichub.app/join | pootaaa",
+        Position = UDim2.fromOffset(6, 6), Size = UDim2.fromOffset(720, 600),
+        AutoShow = true, Center = true, Resizable = true, SearchbarSize = UDim2.fromScale(1, 1),
+        CornerRadius = 4, NotifySide = "Right", ShowCustomCursor = false,
+        Font = Enum.Font.Code, ToggleKeybind = Enum.KeyCode.RightControl, MobileButtonsSide = "Left"
     })
 end
 local V = game.GameId
