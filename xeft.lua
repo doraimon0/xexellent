@@ -49905,7 +49905,6 @@ J.InitUi = function()
     J.WebhooksUi()
     J.SettingsUi()
     J.TweaksUi()
-    y.FarmDetails.RunFarmDetailsShow()
 end
 if C and D then
     J.InitUi()
