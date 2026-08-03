@@ -17313,7 +17313,7 @@ LoopShovelFruits = function()
 end}
 y.FarmDetails = { Label = nil;
 Busy = false, Started = false;
-RefreshDelay = 3, ShowFarmDetails = true;
+RefreshDelay = 3, ShowFarmDetails = false;
 FormatVariant = function(G)
     G = tostring(G or "Normal")
     if G == "Gold" then
