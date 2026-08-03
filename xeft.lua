@@ -17313,7 +17313,7 @@ LoopShovelFruits = function()
 end}
 y.FarmDetails = { Label = nil;
 Busy = false, Started = false;
-RefreshDelay = 3, ShowFarmDetails = false;
+RefreshDelay = 3, ShowFarmDetails = true;
 FormatVariant = function(G)
     G = tostring(G or "Normal")
     if G == "Gold" then
@@ -49905,6 +49905,7 @@ J.InitUi = function()
     J.WebhooksUi()
     J.SettingsUi()
     J.TweaksUi()
+    y.FarmDetails.RunFarmDetailsShow()
 end
 if C and D then
     J.InitUi()
