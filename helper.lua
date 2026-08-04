@@ -9704,332 +9704,615 @@ function Library:CreateWindow(WindowInfo)
         end
         
         
-   function Tab:AddGroupbox(Info)
-    Info = type(Info) == "table" and Info or {}
-
-    local function asNumber(v, fallback)
-        v = tonumber(v)
-        return v ~= nil and v or fallback
-    end
-
-    local side = (Info.Side == 2) and 2 or 1
-    local boxName = tostring(Info.Name or "Groupbox")
-    local description = Info.Description ~= nil and tostring(Info.Description) or nil
-    if description == "" then
-        description = nil
-    end
-
-    Tab.Groupboxes = Tab.Groupboxes or {}
-
-    local parentColumn = (side == 1 and TabLeft) or TabRight or TabLeft
-    if not parentColumn then
-        warn(("[Library] AddGroupbox('%s') skipped: missing TabLeft/TabRight"):format(boxName))
-        return nil
-    end
-
-    local cornerRadius = math.max(0, asNumber(WindowInfo and WindowInfo.CornerRadius, 8))
-    local headerHeight = 40 -- smaller header
-    local outerInset = 6
-    local contentPadTop = 8
-    local contentPadBottom = 12 -- extra bottom room so controls never touch edge
-
-    local BoxHolder = New("Frame", {
-        AutomaticSize = Enum.AutomaticSize.Y,
-        BackgroundTransparency = 1,
-        Size = UDim2.fromScale(1, 0),
-        Parent = parentColumn,
-    })
-    New("UIListLayout", {
-        Padding = UDim.new(0, 6),
-        Parent = BoxHolder,
-    })
-
-    local Background = Library:MakeOutline(BoxHolder, cornerRadius)
-    Background.Size = UDim2.fromScale(1, 0)
-    if Library and Library.UpdateDPI then
-        Library:UpdateDPI(Background, { Size = false })
-    end
-
-    local GroupboxHolder = New("Frame", {
-        BackgroundColor3 = "BackgroundColor",
-        Position = UDim2.fromOffset(2, 2),
-        Size = UDim2.new(1, -4, 1, -4),
-        Parent = Background,
-    })
-    New("UICorner", {
-        CornerRadius = UDim.new(0, math.max(cornerRadius - 1, 0)),
-        Parent = GroupboxHolder,
-    })
-
-    Library:MakeLine(GroupboxHolder, {
-        Position = UDim2.fromOffset(0, headerHeight),
-        Size = UDim2.new(1, 0, 0, 1),
-    })
-
-    local HeaderFrame = New("Frame", {
-        BackgroundTransparency = 1,
-        Size = UDim2.new(1, 0, 0, headerHeight),
-        Parent = GroupboxHolder,
-    })
-
-    local BoxIcon
-    if Info.IconName ~= nil and Library and Library.GetIcon then
-        local ok, result = pcall(function()
-            return Library:GetIcon(Info.IconName)
-        end)
-        if ok then
-            BoxIcon = result
-        end
-    end
-
-    local leftTextOffset = 12
-    if BoxIcon then
-        local IconCard = New("Frame", {
-           
-            BackgroundColor3 = Color3.fromRGB(30, 30, 30), -- black, not too dark
-    BackgroundTransparency = 0.5,
-            Position = UDim2.fromOffset(8, 8),
-            Size = UDim2.fromOffset(26, 26), -- smaller icon box
-            Parent = HeaderFrame,
-        })
-        New("UICorner", {
-            CornerRadius = UDim.new(0, 7),
-            Parent = IconCard,
-        })
-
-        New("ImageLabel", {
-            BackgroundTransparency = 1,
-            AnchorPoint = Vector2.new(0.5, 0.5),
-            Position = UDim2.fromScale(0.5, 0.5),
-            Size = UDim2.fromOffset(12, 12), -- smaller icon image
-            Image = BoxIcon.Url,
-            ImageColor3 = "AccentColor",
-            ImageRectOffset = BoxIcon.ImageRectOffset,
-            ImageRectSize = BoxIcon.ImageRectSize,
-            Parent = IconCard,
-        })
-
-        leftTextOffset = 40
-    end
-
-    New("TextLabel", {
-        BackgroundTransparency = 1,
-        Position = UDim2.fromOffset(leftTextOffset, description and 2 or 0),
-        Size = UDim2.new(1, -(leftTextOffset + 38), 0, description and 20 or headerHeight),
-        Text = boxName,
-        TextSize = 14,
-        TextXAlignment = Enum.TextXAlignment.Left,
-        TextYAlignment = description and Enum.TextYAlignment.Bottom or Enum.TextYAlignment.Center,
-        Parent = HeaderFrame,
-    })
-
-    if description then
-        New("TextLabel", {
-            BackgroundTransparency = 1,
-            Position = UDim2.fromOffset(leftTextOffset, 19),
-            Size = UDim2.new(1, -(leftTextOffset + 38), 0, 16),
-            Text = description,
-            TextSize = 12,
-            TextColor3 = Color3.fromRGB(178, 178, 178),
-            TextXAlignment = Enum.TextXAlignment.Left,
-            Parent = HeaderFrame,
-        })
-    end
-
-    local ToggleIcon = New("TextLabel", {
-        BackgroundTransparency = 1,
-        Size = UDim2.fromOffset(20, 20),
-        Position = UDim2.new(1, -28, 0, 10),
-        TextColor3 = Color3.fromRGB(205, 205, 205),
-        TextSize = 13,
-        Font = Enum.Font.Code,
-        Parent = HeaderFrame,
-    })
-
-    -- Single content container (no second inner frame)
-    local GroupboxContainer = New("Frame", {
-       
-         BackgroundColor3 = Color3.fromRGB(30, 30, 30), -- black, not too dark
-    BackgroundTransparency = 0.67,
-        Position = UDim2.fromOffset(outerInset, headerHeight + outerInset),
-        Size = UDim2.new(1, -(outerInset * 2), 1, -(headerHeight + outerInset * 2)),
-        Parent = GroupboxHolder,
-        ClipsDescendants = true,
-    })
-    New("UICorner", {
-        CornerRadius = UDim.new(0, 10),
-        Parent = GroupboxContainer,
-    })
-
-    local GroupboxList = New("UIListLayout", {
-        Padding = UDim.new(0, 8),
-        Parent = GroupboxContainer,
-    })
-    New("UIPadding", {
-        PaddingTop = UDim.new(0, contentPadTop),
-        PaddingBottom = UDim.new(0, contentPadBottom),
-        PaddingLeft = UDim.new(0, 8),
-        PaddingRight = UDim.new(0, 8),
-        Parent = GroupboxContainer,
-    })
-
-    local Groupbox = {
-        BoxHolder = BoxHolder,
-        Holder = Background,
-        Container = GroupboxContainer,
-        ToggleIcon = ToggleIcon,
-        Tab = Tab,
-        DependencyBoxes = {},
-        Elements = {},
-    }
-
-    local collapsed = true
-    if Info.StartCollapsed ~= nil then
-        collapsed = Info.StartCollapsed and true or false
-    end
-
-    local TweenService = game:GetService("TweenService")
-    local tweenInfo = TweenInfo.new(0.18, Enum.EasingStyle.Sine, Enum.EasingDirection.Out)
-    local activeTween
-
-    local function expandedHeight()
-        local listHeight = (GroupboxList and GroupboxList.AbsoluteContentSize and GroupboxList.AbsoluteContentSize.Y) or 0
-        local contentHeight = listHeight + contentPadTop + contentPadBottom
-        return headerHeight + outerInset + contentHeight + outerInset
-    end
-
-    local function targetHeight()
-        if collapsed then
-            return headerHeight
-        end
-        return expandedHeight()
-    end
-
-    local function setArrow()
-        ToggleIcon.Text = collapsed and ">" or "v"
-    end
-
-    function Groupbox:Resize_old()
-        self:Resize(false)
-    end
-
-    function Groupbox:Resize(animated)
-        if not Background or not Background.Parent then
-            return
+    function Tab:AddGroupbox(Info)
+        if type(Info) ~= "table" then
+            Info = {}
         end
 
-        local size = UDim2.new(1, 0, 0, math.max(0, math.floor(targetHeight() + 0.5)))
-        if activeTween then
-            activeTween:Cancel()
-            activeTween = nil
+        local function getGroupboxNumber(value, fallback)
+            value = tonumber(value)
+            if value == nil then
+                return fallback
+            end
+
+            return value
         end
 
-        if animated then
-            activeTween = TweenService:Create(Background, tweenInfo, { Size = size })
-            activeTween:Play()
-        else
-            Background.Size = size
+        local groupboxSide = 1
+        if Info.Side == 2 then
+            groupboxSide = 2
         end
-    end
 
-    local function Toggle()
-        collapsed = not collapsed
-        setArrow()
-
-        if not collapsed then
-            GroupboxContainer.Visible = true
-            Groupbox:Resize(true)
-        else
-            Groupbox:Resize(true)
-            task.delay(tweenInfo.Time, function()
-                if collapsed and GroupboxContainer and GroupboxContainer.Parent then
-                    GroupboxContainer.Visible = false
-                end
-            end)
-        end
-    end
-
-    local UserInputService = game:GetService("UserInputService")
-    local touchInputObj, touchStartPos
-    local MAX_TAP_MOVE = 4
-    local connections = {}
-
-    local function connect(signal, fn)
-        if not signal then
-            return
-        end
-        local ok, conn = pcall(function()
-            return signal:Connect(fn)
-        end)
-        if ok and conn then
-            connections[#connections + 1] = conn
-        end
-    end
-
-    connect(HeaderFrame.InputBegan, function(input)
-        if not input then
-            return
-        end
-        if input.UserInputType == Enum.UserInputType.MouseButton1 then
-            Toggle()
-        elseif input.UserInputType == Enum.UserInputType.Touch then
-            touchInputObj = input
-            touchStartPos = input.Position
-        end
-    end)
-
-    connect(UserInputService.InputChanged, function(input)
-        if input ~= touchInputObj or not touchStartPos then
-            return
-        end
-        local delta = input.Position - touchStartPos
-        if math.abs(delta.X) > MAX_TAP_MOVE or math.abs(delta.Y) > MAX_TAP_MOVE then
-            touchInputObj = nil
-            touchStartPos = nil
-        end
-    end)
-
-    connect(UserInputService.InputEnded, function(input)
-        if input ~= touchInputObj then
-            return
-        end
-        Toggle()
-        touchInputObj = nil
-        touchStartPos = nil
-    end)
-
-    connect(GroupboxList:GetPropertyChangedSignal("AbsoluteContentSize"), function()
-        if not collapsed then
-            Groupbox:Resize(false)
-        end
-    end)
-
-    connect(BoxHolder.AncestryChanged, function(_, newParent)
-        if newParent ~= nil then
-            return
-        end
-        for i = 1, #connections do
-            local c = connections[i]
-            if c and c.Connected then
-                c:Disconnect()
+        local boxName = tostring(Info.Name or "Groupbox")
+        local description = nil
+        if Info.Description ~= nil then
+            description = tostring(Info.Description)
+            if description == "" then
+                description = nil
             end
         end
-    end)
 
-    if type(BaseGroupbox) == "table" then
-        setmetatable(Groupbox, BaseGroupbox)
+        Tab.Groupboxes = Tab.Groupboxes or {}
+
+        local parentColumn = TabLeft
+        if groupboxSide == 2 then
+            parentColumn = TabRight
+        end
+        if parentColumn == nil then
+            parentColumn = TabLeft or TabRight
+        end
+        if parentColumn == nil then
+            warn(("[Library] AddGroupbox('%s') skipped: missing TabLeft/TabRight"):format(boxName))
+            return nil
+        end
+
+        local configuredCornerRadius = 8
+        if WindowInfo then
+            configuredCornerRadius = getGroupboxNumber(WindowInfo.CornerRadius, 8)
+        end
+
+        local cardCornerRadius = math.max(12, configuredCornerRadius)
+        local surfaceCornerRadius = math.max(10, cardCornerRadius - 2)
+        local contentCornerRadius = math.max(10, cardCornerRadius - 2)
+        local surfaceInset = 1
+        local headerHorizontalPadding = 11
+        local headerVerticalPadding = 7
+        local headerIconSize = 28
+        local headerIconImageSize = 14
+        local headerIconGap = 9
+        local headerMinHeight = headerIconSize + (headerVerticalPadding * 2)
+        local headerArrowSize = 15
+        local headerArrowRightPadding = 13
+        local headerRightReserve = headerArrowRightPadding + headerArrowSize + 10
+        local headerTextGap = 2
+        local contentOuterInset = 5
+        local contentSpacing = 8
+        local contentPadding = 6
+        local contentPaddingBottom = 10
+        local tapMoveThreshold = 4
+        local arrowTransparency = 0.18
+        local collapsedArrowRotation = 90
+        local expandedArrowRotation = 180
+        local groupboxTweenInfo = TweenInfo.new(0.2, Enum.EasingStyle.Quint, Enum.EasingDirection.Out)
+        local groupboxShellTargetColor = Color3.fromRGB(12, 12, 13)
+        local groupboxSurfaceTargetColor = Color3.fromRGB(17, 17, 19)
+        local groupboxContentTargetColor = Color3.fromRGB(11, 11, 12)
+        local groupboxIconTargetColor = Color3.fromRGB(23, 23, 25)
+        local groupboxBorderTargetColor = Color3.fromRGB(72, 72, 72)
+        local groupboxInnerBorderTargetColor = Color3.fromRGB(42, 42, 42)
+
+        local function scaleGroupboxPixels(value)
+            return math.max(0, math.floor((value * Library.DPIScale) + 0.5))
+        end
+
+        local function getGroupboxShellColor()
+            return Library.Scheme.BackgroundColor:Lerp(groupboxShellTargetColor, 0.96)
+        end
+
+        local function getGroupboxSurfaceColor()
+            return Library.Scheme.BackgroundColor:Lerp(groupboxSurfaceTargetColor, 0.94)
+        end
+
+        local function getGroupboxContentColor()
+            return Library.Scheme.BackgroundColor:Lerp(groupboxContentTargetColor, 0.92)
+        end
+
+        local function getGroupboxIconColor()
+            return Library.Scheme.BackgroundColor:Lerp(groupboxIconTargetColor, 0.9)
+        end
+
+        local function getGroupboxBorderColor()
+            return Library.Scheme.OutlineColor:Lerp(groupboxBorderTargetColor, 0.68)
+        end
+
+        local function getGroupboxInnerBorderColor()
+            return Library.Scheme.OutlineColor:Lerp(groupboxInnerBorderTargetColor, 0.74)
+        end
+
+        local BoxHolder = New("Frame", {
+            AutomaticSize = Enum.AutomaticSize.Y,
+            BackgroundTransparency = 1,
+            Size = UDim2.fromScale(1, 0),
+            Parent = parentColumn,
+        })
+        New("UIListLayout", {
+            Padding = UDim.new(0, 6),
+            Parent = BoxHolder,
+        })
+
+        local Background = New("Frame", {
+            BackgroundColor3 = getGroupboxBorderColor(),
+            ClipsDescendants = true,
+            Size = UDim2.fromScale(1, 0),
+            Parent = BoxHolder,
+
+            DPIExclude = {
+                Size = true,
+            },
+        })
+        Library:AddToRegistry(Background, {
+            BackgroundColor3 = function()
+                return getGroupboxBorderColor()
+            end,
+        })
+        New("UICorner", {
+            CornerRadius = UDim.new(0, cardCornerRadius),
+            Parent = Background,
+        })
+
+        local ShellFrame = New("Frame", {
+            BackgroundColor3 = getGroupboxShellColor(),
+            Position = UDim2.fromOffset(surfaceInset, surfaceInset),
+            Size = UDim2.new(1, -(surfaceInset * 2), 1, -(surfaceInset * 2)),
+            Parent = Background,
+
+            DPIExclude = {
+                Position = true,
+                Size = true,
+            },
+        })
+        Library:AddToRegistry(ShellFrame, {
+            BackgroundColor3 = function()
+                return getGroupboxShellColor()
+            end,
+        })
+        New("UICorner", {
+            CornerRadius = UDim.new(0, surfaceCornerRadius),
+            Parent = ShellFrame,
+        })
+
+        local SurfaceFrame = New("Frame", {
+            BackgroundColor3 = getGroupboxSurfaceColor(),
+            ClipsDescendants = true,
+            Position = UDim2.fromOffset(surfaceInset, surfaceInset),
+            Size = UDim2.new(1, -(surfaceInset * 2), 1, -(surfaceInset * 2)),
+            Parent = ShellFrame,
+
+            DPIExclude = {
+                Position = true,
+                Size = true,
+            },
+        })
+        Library:AddToRegistry(SurfaceFrame, {
+            BackgroundColor3 = function()
+                return getGroupboxSurfaceColor()
+            end,
+        })
+        New("UICorner", {
+            CornerRadius = UDim.new(0, surfaceCornerRadius),
+            Parent = SurfaceFrame,
+        })
+        local SurfaceStroke = New("UIStroke", {
+            Color = getGroupboxInnerBorderColor(),
+            Thickness = 1,
+            Transparency = 0.12,
+            Parent = SurfaceFrame,
+        })
+        Library:AddToRegistry(SurfaceStroke, {
+            Color = function()
+                return getGroupboxInnerBorderColor()
+            end,
+        })
+
+        local HeaderFrame = New("Frame", {
+            Active = true,
+            BackgroundTransparency = 1,
+            Size = UDim2.new(1, 0, 0, 0),
+            Parent = SurfaceFrame,
+
+            DPIExclude = {
+                Size = true,
+            },
+        })
+
+        local BoxIcon = nil
+        if Info.IconName ~= nil and Library.GetIcon then
+            local iconSuccess, iconResult = pcall(function()
+                return Library:GetIcon(Info.IconName)
+            end)
+            if iconSuccess then
+                BoxIcon = iconResult
+            end
+        end
+
+        local leftTextOffset = headerHorizontalPadding
+        if BoxIcon then
+            local IconCard = New("Frame", {
+                AnchorPoint = Vector2.new(0, 0.5),
+                BackgroundColor3 = getGroupboxIconColor(),
+                Position = UDim2.new(0, headerHorizontalPadding, 0.5, 0),
+                Size = UDim2.fromOffset(headerIconSize, headerIconSize),
+                Parent = HeaderFrame,
+            })
+            Library:AddToRegistry(IconCard, {
+                BackgroundColor3 = function()
+                    return getGroupboxIconColor()
+                end,
+            })
+            New("UICorner", {
+                CornerRadius = UDim.new(0, math.max(10, contentCornerRadius - 2)),
+                Parent = IconCard,
+            })
+            local IconCardStroke = New("UIStroke", {
+                Color = getGroupboxInnerBorderColor(),
+                Thickness = 1,
+                Transparency = 0.5,
+                Parent = IconCard,
+            })
+            Library:AddToRegistry(IconCardStroke, {
+                Color = function()
+                    return getGroupboxInnerBorderColor()
+                end,
+            })
+
+            local IconImage = New("ImageLabel", {
+                AnchorPoint = Vector2.new(0.5, 0.5),
+                BackgroundTransparency = 1,
+                Image = BoxIcon.Url,
+                ImageColor3 = Library.Scheme.AccentColor,
+                ImageRectOffset = BoxIcon.ImageRectOffset,
+                ImageRectSize = BoxIcon.ImageRectSize,
+                Position = UDim2.fromScale(0.5, 0.5),
+                Size = UDim2.fromOffset(headerIconImageSize, headerIconImageSize),
+                Parent = IconCard,
+            })
+            Library:AddToRegistry(IconImage, {
+                ImageColor3 = "AccentColor",
+            })
+
+            leftTextOffset = headerHorizontalPadding + headerIconSize + headerIconGap
+        end
+
+        local HeaderTextStack = New("Frame", {
+            AnchorPoint = Vector2.new(0, 0.5),
+            AutomaticSize = Enum.AutomaticSize.Y,
+            BackgroundTransparency = 1,
+            Position = UDim2.new(0, leftTextOffset, 0.5, 0),
+            Size = UDim2.new(1, -(leftTextOffset + headerRightReserve), 0, 0),
+            Parent = HeaderFrame,
+        })
+        New("UIListLayout", {
+            Padding = UDim.new(0, headerTextGap),
+            Parent = HeaderTextStack,
+        })
+
+        local GroupboxLabel = New("TextLabel", {
+            AutomaticSize = Enum.AutomaticSize.Y,
+            BackgroundTransparency = 1,
+            Font = Enum.Font.GothamMedium,
+            Size = UDim2.new(1, 0, 0, 0),
+            Text = boxName,
+            TextColor3 = Library.Scheme.FontColor,
+            TextSize = 13,
+            TextWrapped = true,
+            TextXAlignment = Enum.TextXAlignment.Left,
+            TextYAlignment = Enum.TextYAlignment.Top,
+            Parent = HeaderTextStack,
+        })
+        Library:AddToRegistry(GroupboxLabel, {
+            TextColor3 = "FontColor",
+        })
+
+        if description then
+            local GroupboxDescription = New("TextLabel", {
+                AutomaticSize = Enum.AutomaticSize.Y,
+                BackgroundTransparency = 1,
+                Font = Enum.Font.Gotham,
+                Size = UDim2.new(1, 0, 0, 0),
+                Text = description,
+                TextColor3 = Library.Scheme.FontColor,
+                TextSize = 10,
+                TextTransparency = 0.4,
+                TextWrapped = true,
+                TextXAlignment = Enum.TextXAlignment.Left,
+                TextYAlignment = Enum.TextYAlignment.Top,
+                Parent = HeaderTextStack,
+            })
+            Library:AddToRegistry(GroupboxDescription, {
+                TextColor3 = "FontColor",
+            })
+        end
+
+        local ToggleIcon = nil
+        if ArrowIcon then
+            ToggleIcon = New("ImageLabel", {
+                AnchorPoint = Vector2.new(1, 0.5),
+                BackgroundTransparency = 1,
+                Image = ArrowIcon.Url,
+                ImageColor3 = Library.Scheme.FontColor,
+                ImageRectOffset = ArrowIcon.ImageRectOffset,
+                ImageRectSize = ArrowIcon.ImageRectSize,
+                ImageTransparency = arrowTransparency,
+                Position = UDim2.new(1, -headerArrowRightPadding, 0.5, 0),
+                Rotation = collapsedArrowRotation,
+                Size = UDim2.fromOffset(headerArrowSize, headerArrowSize),
+                Parent = HeaderFrame,
+            })
+            Library:AddToRegistry(ToggleIcon, {
+                ImageColor3 = "FontColor",
+            })
+        else
+            collapsedArrowRotation = 0
+            expandedArrowRotation = 90
+            ToggleIcon = New("TextLabel", {
+                AnchorPoint = Vector2.new(1, 0.5),
+                BackgroundTransparency = 1,
+                Font = Enum.Font.GothamMedium,
+                Position = UDim2.new(1, -headerArrowRightPadding, 0.5, 0),
+                Rotation = collapsedArrowRotation,
+                Size = UDim2.fromOffset(headerArrowSize + 2, headerArrowSize + 2),
+                Text = "›",
+                TextColor3 = Library.Scheme.FontColor,
+                TextSize = 19,
+                TextTransparency = arrowTransparency,
+                Parent = HeaderFrame,
+            })
+            Library:AddToRegistry(ToggleIcon, {
+                TextColor3 = "FontColor",
+            })
+        end
+
+        local HeaderDivider = New("Frame", {
+            BackgroundColor3 = getGroupboxInnerBorderColor(),
+            BackgroundTransparency = 0.18,
+            Position = UDim2.fromOffset(0, 0),
+            Size = UDim2.new(1, 0, 0, 0),
+            Visible = false,
+            Parent = SurfaceFrame,
+
+            DPIExclude = {
+                Position = true,
+                Size = true,
+            },
+        })
+        Library:AddToRegistry(HeaderDivider, {
+            BackgroundColor3 = function()
+                return getGroupboxInnerBorderColor()
+            end,
+        })
+
+        local GroupboxContainer = New("Frame", {
+            BackgroundColor3 = getGroupboxContentColor(),
+            ClipsDescendants = true,
+            Position = UDim2.fromOffset(0, 0),
+            Size = UDim2.fromOffset(0, 0),
+            Parent = SurfaceFrame,
+
+            DPIExclude = {
+                Position = true,
+                Size = true,
+            },
+        })
+        Library:AddToRegistry(GroupboxContainer, {
+            BackgroundColor3 = function()
+                return getGroupboxContentColor()
+            end,
+        })
+        New("UICorner", {
+            CornerRadius = UDim.new(0, contentCornerRadius),
+            Parent = GroupboxContainer,
+        })
+        local GroupboxList = New("UIListLayout", {
+            Padding = UDim.new(0, contentSpacing),
+            Parent = GroupboxContainer,
+        })
+        New("UIPadding", {
+            PaddingTop = UDim.new(0, contentPadding),
+            PaddingBottom = UDim.new(0, contentPaddingBottom),
+            PaddingLeft = UDim.new(0, contentPadding),
+            PaddingRight = UDim.new(0, contentPadding),
+            Parent = GroupboxContainer,
+        })
+
+        local Groupbox = {
+            BoxHolder = BoxHolder,
+            Holder = Background,
+            Container = GroupboxContainer,
+            ToggleIcon = ToggleIcon,
+            Tab = Tab,
+            DependencyBoxes = {},
+            Elements = {},
+        }
+
+        local collapsed = true
+        if Info.StartCollapsed ~= nil then
+            collapsed = Info.StartCollapsed == true
+        end
+
+        local activeSizeTween = nil
+        local activeArrowTween = nil
+        local touchInputObject = nil
+        local touchStartPosition = nil
+        local connections = {}
+
+        local function getHeaderHeight()
+            local textHeight = HeaderTextStack.AbsoluteSize.Y
+            local paddedTextHeight = textHeight + scaleGroupboxPixels(headerVerticalPadding * 2)
+            return math.max(scaleGroupboxPixels(headerMinHeight), paddedTextHeight)
+        end
+
+        local function updateGroupboxLayout()
+            local headerHeight = getHeaderHeight()
+            local scaledContentInset = scaleGroupboxPixels(contentOuterInset)
+            local contentTop = headerHeight + scaledContentInset
+            local contentHeight = GroupboxList.AbsoluteContentSize.Y + scaleGroupboxPixels(contentPadding + contentPaddingBottom)
+
+            HeaderFrame.Size = UDim2.new(1, 0, 0, headerHeight)
+            HeaderDivider.Position = UDim2.fromOffset(scaledContentInset, headerHeight)
+            HeaderDivider.Size = UDim2.new(1, -(scaledContentInset * 2), 0, math.max(1, scaleGroupboxPixels(1)))
+            GroupboxContainer.Position = UDim2.fromOffset(scaledContentInset, contentTop)
+            GroupboxContainer.Size = UDim2.new(1, -(scaledContentInset * 2), 0, contentHeight)
+
+            if collapsed then
+                return headerHeight
+            end
+
+            return contentTop + contentHeight + scaledContentInset
+        end
+
+        local function updateArrow(animated)
+            local rotation = expandedArrowRotation
+            if collapsed then
+                rotation = collapsedArrowRotation
+            end
+
+            if activeArrowTween then
+                activeArrowTween:Cancel()
+                activeArrowTween = nil
+            end
+
+            if animated then
+                activeArrowTween = TweenService:Create(ToggleIcon, groupboxTweenInfo, {
+                    Rotation = rotation,
+                })
+                activeArrowTween:Play()
+            else
+                ToggleIcon.Rotation = rotation
+                if ToggleIcon:IsA("ImageLabel") then
+                    ToggleIcon.ImageTransparency = arrowTransparency
+                else
+                    ToggleIcon.TextTransparency = arrowTransparency
+                end
+            end
+        end
+
+        function Groupbox:Resize_old()
+            self:Resize(false)
+        end
+
+        function Groupbox:Resize(animated)
+            if Background.Parent == nil then
+                return
+            end
+
+            local targetHeight = math.max(0, updateGroupboxLayout())
+            local targetSize = UDim2.new(1, 0, 0, targetHeight)
+
+            if activeSizeTween then
+                activeSizeTween:Cancel()
+                activeSizeTween = nil
+            end
+
+            if animated then
+                activeSizeTween = TweenService:Create(Background, groupboxTweenInfo, {
+                    Size = targetSize,
+                })
+                activeSizeTween:Play()
+            else
+                Background.Size = targetSize
+            end
+        end
+
+        local function toggleGroupbox()
+            collapsed = not collapsed
+            HeaderDivider.Visible = not collapsed
+
+            if not collapsed then
+                GroupboxContainer.Visible = true
+            end
+
+            updateArrow(true)
+            Groupbox:Resize(true)
+
+            if collapsed then
+                task.delay(groupboxTweenInfo.Time, function()
+                    if collapsed and GroupboxContainer.Parent then
+                        GroupboxContainer.Visible = false
+                    end
+                end)
+            end
+        end
+
+        local function connectGroupboxSignal(signal, callback)
+            if signal == nil then
+                return
+            end
+
+            local connectSuccess, connection = pcall(function()
+                return signal:Connect(callback)
+            end)
+            if connectSuccess and connection then
+                connections[#connections + 1] = connection
+            end
+        end
+
+        connectGroupboxSignal(HeaderFrame.InputBegan, function(input)
+            if input == nil then
+                return
+            end
+
+            if input.UserInputType == Enum.UserInputType.MouseButton1 then
+                toggleGroupbox()
+            elseif input.UserInputType == Enum.UserInputType.Touch then
+                touchInputObject = input
+                touchStartPosition = input.Position
+            end
+        end)
+
+        connectGroupboxSignal(UserInputService.InputChanged, function(input)
+            if input ~= touchInputObject or touchStartPosition == nil then
+                return
+            end
+
+            local delta = input.Position - touchStartPosition
+            if math.abs(delta.X) > tapMoveThreshold or math.abs(delta.Y) > tapMoveThreshold then
+                touchInputObject = nil
+                touchStartPosition = nil
+            end
+        end)
+
+        connectGroupboxSignal(UserInputService.InputEnded, function(input)
+            if input ~= touchInputObject then
+                return
+            end
+
+            toggleGroupbox()
+            touchInputObject = nil
+            touchStartPosition = nil
+        end)
+
+        connectGroupboxSignal(HeaderTextStack:GetPropertyChangedSignal("AbsoluteSize"), function()
+            Groupbox:Resize(false)
+        end)
+
+        connectGroupboxSignal(GroupboxList:GetPropertyChangedSignal("AbsoluteContentSize"), function()
+            if not collapsed then
+                Groupbox:Resize(false)
+            end
+        end)
+
+        connectGroupboxSignal(BoxHolder.AncestryChanged, function(_, newParent)
+            if newParent ~= nil then
+                return
+            end
+
+            if activeSizeTween then
+                activeSizeTween:Cancel()
+            end
+            if activeArrowTween then
+                activeArrowTween:Cancel()
+            end
+
+            for index = 1, #connections do
+                local connection = connections[index]
+                if connection and connection.Connected then
+                    connection:Disconnect()
+                end
+            end
+        end)
+
+        if type(BaseGroupbox) == "table" then
+            setmetatable(Groupbox, BaseGroupbox)
+        end
+
+        HeaderDivider.Visible = not collapsed
+        GroupboxContainer.Visible = not collapsed
+        updateArrow(false)
+        Groupbox:Resize(false)
+        Tab.Groupboxes[boxName] = Groupbox
+
+        return Groupbox
     end
-
-    setArrow()
-    GroupboxContainer.Visible = not collapsed
-    Groupbox:Resize(false)
-    Tab.Groupboxes[boxName] = Groupbox
-
-    return Groupbox
-end
-
-
-
     function Tab:AddGroupbox_org(Info)
         local BoxHolder = New("Frame", {
             AutomaticSize = Enum.AutomaticSize.Y,
