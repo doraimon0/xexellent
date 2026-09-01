@@ -17,7 +17,7 @@ if isNoui then
     UI.Window = mockUI
     UI.IsHeadless = function() return true end
 else
-    local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/Reversed1337/Testing-123/refs/heads/main/zetahub_uilib"))()
+    local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/doraimon0/xexellent/refs/heads/main/helper.lua"))()
     UI.Library = Library
 
     UI.Window = Library:CreateWindow({
