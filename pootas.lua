@@ -17,7 +17,7 @@ if isNoui then
     UI.Window = mockUI
     UI.IsHeadless = function() return true end
 else
-    local Library = loadstring(game:HttpGet("https://exotichub.app/live_mskmb7a2p8dj.lua"))()
+    local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/doraimon0/xexellent/refs/heads/main/helper.lua"))()
     UI.Library = Library
 
     UI.Window = Library:CreateWindow({
