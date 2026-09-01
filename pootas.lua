@@ -17,7 +17,13 @@ if isNoui then
     UI.Window = mockUI
     UI.IsHeadless = function() return true end
 else
-    local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/doraimon0/xexellent/refs/heads/main/helper.lua"))()
+    local UI_SOURCE_URL = "https://exotichub.app/live_mskmb7a2p8dj.lua"
+    local UI_SOURCE = game:HttpGet(UI_SOURCE_URL)
+    -- ui_1.0.14 defaults every groupbox to collapsed. 1.lua's UI expects
+    -- the normal controls to be visible immediately, so keep the same
+    -- expanded default while preserving explicit StartCollapsed=true.
+    UI_SOURCE = UI_SOURCE:gsub("local collapsed = true", "local collapsed = false", 1)
+    local Library = loadstring(UI_SOURCE)()
     UI.Library = Library
 
     UI.Window = Library:CreateWindow({
@@ -36134,6 +36140,11 @@ function j.LoadUiAll()
 end
 j._started = os.clock()
 j.LoadUiAll()
+pcall(function()
+    if G.Window and type(G.Window.Toggle) == "function" then
+        G.Window:Toggle(true)
+    end
+end)
 print(string.format("[UI LOAD] Total: %.3fs", os.clock() - j._started))
 j.can_remove_plants_loader = true
 u.chipmunk_cd_max = 10
