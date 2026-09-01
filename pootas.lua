@@ -1,7 +1,47 @@
 if not game:IsLoaded() then game.Loaded:Wait() end
 task.wait(1)
-local G = game.GameId
-if tostring(G) ~= "7436755782" then return end
+-- UI bootstrap ported from 1.lua
+local UI = {}
+UI.IsPremium = function() return true end
+UI.RegisterReset = function() end
+
+local isNoui = (tostring(getgenv().mode) == "noui")
+
+if isNoui then
+    local mockMeta = {
+        __index = function(t, k) return t end,
+        __call = function(t, ...) return t end
+    }
+    local mockUI = setmetatable({}, mockMeta)
+    UI.Library = mockUI
+    UI.Window = mockUI
+    UI.IsHeadless = function() return true end
+else
+    local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/Reversed1337/Testing-123/refs/heads/main/zetahub_uilib"))()
+    UI.Library = Library
+
+    UI.Window = Library:CreateWindow({
+        Title = "Exotic Hub Lifetime",
+        Footer = "exotichub.app/join | Hello World!",
+        Position = UDim2.fromOffset(6, 6),
+        Size = UDim2.fromOffset(720, 600),
+        AutoShow = true,
+        Center = true,
+        Resizable = true,
+        SearchbarSize = UDim2.fromScale(1, 1),
+        CornerRadius = 4,
+        NotifySide = "Right",
+        ShowCustomCursor = false,
+        Font = Enum.Font.Code,
+        ToggleKeybind = Enum.KeyCode.RightControl,
+        MobileButtonsSide = "Left",
+    })
+end
+
+-- Keep the original variable name expected by soosa.lua.
+local G = UI
+local GameId = game.GameId
+if tostring(GameId) ~= "7436755782" then return end
 if _G.is_running_gag then
     warn("Already running x")
     return
@@ -170,149 +210,16 @@ function Addcantsleep()
         end
     end
 end
-pcall(function()  Addcantsleep() end)
-
+pcall(function()
+    Addcantsleep()
+end)
 y.ReplicatedStorageSharedFolder = y.ReplicatedStorage:WaitForChild("Shared")
 print("Loading m6")
 y.WEBHOOK_URL = ""
 y.PROXY_URL = "https://exotichub.app/p"
 y.invite_link_url = "https://exotichub.app/join"
 y.invite_link_short = "exotichub.app/join"
-local y = nil
-local Z = ((function()
-    local G = {
-        Url = "https://raw.githubusercontent.com/Reversed1337/Testing-123/refs/heads/main/zetahub_uilib",
-        Version = "ui_1.0.0",
-        Root = "exotichub99",
-        Folder =
-        "exotichub99/cache",
-        File = "exotichub99/cache/exoui.lua",
-        VersionFile = "exotichub99/cache/exoui.version",
-        MinSize = 100,
-        LastStatus =
-        "",
-        HasFS = function(G)
-            return type(isfile) == "function" and
-                (type(readfile) == "function" and type(writefile) == "function")
-        end,
-        EnsureFolders = function(G)
-            if type(isfolder) ~= "function" or type(makefolder) ~= "function" then return false end
-            pcall(function()
-                if not isfolder(G.Root) then makefolder(G.Root) end
-                if not isfolder(G.Folder) then makefolder(G.Folder) end
-            end)
-            return true
-        end,
-        Read = function(G, V)
-            if not G:HasFS() or not isfile(V) then return nil end
-            local y, Z = pcall(readfile, V)
-            if y and type(Z) == "string" then return Z end
-            return nil
-        end,
-        Write = function(G, V, y)
-            if not G:HasFS() then return false end
-            G:EnsureFolders()
-            local Z = pcall(function() writefile(V, y) end)
-            return Z == true
-        end,
-        Delete = function(G, V)
-            if type(delfile) ~= "function" or type(isfile) ~= "function" then return false end
-            if not isfile(V) then return true end
-            local y = pcall(function() delfile(V) end)
-            return y == true
-        end,
-        GoodSource = function(G, V) return type(V) == "string" and #V >= G.MinSize end,
-        Run = function(G, V, y)
-            if not G:GoodSource(V) then
-                G.LastStatus = "bad source: " .. tostring(y)
-                warn("[EXO UI]", G.LastStatus)
-                return nil
-            end
-            if type(loadstring) ~= "function" then
-                G.LastStatus = "loadstring missing"
-                warn("[EXO UI]", G.LastStatus)
-                return nil
-            end
-            local Z, j = loadstring(V)
-            if not Z then
-                G.LastStatus = "compile failed: " .. tostring(y)
-                warn("[EXO UI]", G.LastStatus, j)
-                return nil
-            end
-            local i, c = pcall(Z)
-            if not i or not c then
-                G.LastStatus = "runtime failed: " .. tostring(y)
-                warn("[EXO UI]", G.LastStatus, c)
-                return nil
-            end
-            G.LastStatus = "loaded: " .. tostring(y)
-            return c
-        end,
-        Download = function(G)
-            local V, y = pcall(function() return game:HttpGet(G.Url, true) end)
-            if not V or not G:GoodSource(y) then
-                G.LastStatus = "download failed"
-                warn("[EXO UI]", G.LastStatus)
-                return nil
-            end
-            return y
-        end,
-        LoadCache = function(G, V)
-            local y = G:Read(G.VersionFile)
-            if not V and y ~= G.Version then return nil end
-            local Z = G:Read(G.File)
-            return G:Run(Z, V and "old cache" or "cache")
-        end,
-        SaveCache = function(G, V)
-            if not G:GoodSource(V) then return false end
-            local y = G:Write(G.File, V)
-            local Z = G:Write(G.VersionFile, G.Version)
-            return y and Z
-        end,
-        Reload = function(G)
-            local V = G:Download()
-            if not V then return nil end
-            local y = G:Run(V, "web")
-            if not y then return nil end
-            G:SaveCache(V)
-            G.LastStatus = "reloaded v" .. tostring(G.Version)
-            return y
-        end,
-        Clear = function(G)
-            G:Delete(G.File)
-            G:Delete(G.VersionFile)
-            G.LastStatus = "cache cleared"
-            return true
-        end,
-        Load = function(G)
-            G:EnsureFolders()
-            local V = G:LoadCache(false)
-            if V then
-                print("[EXO UI] cache v" .. tostring(G.Version))
-                return V
-            end
-            V = G:Reload()
-            if V then
-                print("[EXO UI] web cached v" .. tostring(G.Version))
-                return V
-            end
-            V = G:LoadCache(true)
-            if V then
-                warn("[EXO UI] using old cache fallback")
-                return V
-            end
-            G.LastStatus = "failed completely"
-            warn("[EXO UI]", G.LastStatus)
-            return nil
-        end
-    }
-    return G:Load()
-end))()
-if not Z then
-    print("Ui Lib failed to load. Stopping")
-    return
-end
-y = Z
+local Z = G.Library
 y.AppName = "Exotic Hub"
 y.CurentV = "v179"
 local j = {}
